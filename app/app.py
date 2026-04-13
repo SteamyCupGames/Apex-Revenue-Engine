@@ -1,242 +1,196 @@
-# import streamlit as st
-# import joblib
-# import pandas as pd
-# import numpy as np
-
-# # 1. Configuración de la Interfaz
-# st.set_page_config(page_title="Olist | Predictive Revenue Engine", layout="wide", page_icon="🚀")
-# st.title("🚀 SDR Priority Console: Shark Detector")
-
-# # 2. Carga de Assets (Asegúrate de que la ruta sea correcta)
-# @st.cache_resource
-# def load_assets():
-#     clf = joblib.load('C:\\Users\\User\\Desktop\\Software y Clases\\BigData\\OList\\olist-project-sa\\Model\\lead_scoring_rf_model.joblib')
-#     reg = joblib.load('C:\\Users\\User\\Desktop\\Software y Clases\\BigData\\OList\\olist-project-sa\\Model\\ltv_regressor_model.joblib')
-#     features = joblib.load('C:\\Users\\User\\Desktop\\Software y Clases\\BigData\\OList\\olist-project-sa\\Model\\model_features.joblib')
-#     return clf, reg, features
-
-# try:
-#     clf_model, reg_model, model_features = load_assets()
-# except Exception as e:
-#     st.error(f"❌ Error al cargar modelos: {e}")
-#     st.stop()
-
-# # 3. Sidebar: Captura de Datos (Inferencia en Tiempo Real)
-# with st.sidebar:
-#     st.header("Lead Characteristics")
-#     origin = st.selectbox("Marketing Origin", ['organic_search', 'paid_search', 'social', 'unknown', 'email', 'other'])
-#     segment = st.selectbox("Business Segment", ['watches', 'health_beauty', 'audio_video_electronics', 'household_utilities', 'construction_tools', 'other'])
-#     lead_type = st.selectbox("Lead Type", ['online_medium', 'online_big', 'offline', 'industry', 'not_qualified'])
-
-# # 4. Construcción del input_df (Fixing Syntax & Index Errors)
-# # Creamos la fila identificada con 
-# input_df = pd.DataFrame(0, index=[0], columns=model_features)
-
-# # Inyectamos tu hallazgo de Data Forensics: Relojes y Salud/Belleza son High Value
-# high_value_segments = ['watches', 'health_beauty', 'audio_video_electronics']
-# input_df['is_high_value_segment'] = 1 if segment in high_value_segments else 0
-
-# # Activamos los One-Hot Encoders correspondientes
-# if f'origin_{origin}' in input_df.columns:
-#     input_df[f'origin_{origin}'] = 1
-# if f'lead_type_{lead_type}' in input_df.columns:
-#     input_df[f'lead_type_{lead_type}'] = 1
-
-# # 5. Ejecución del botón de predicción
-# if st.button("Analyze Lead Potential"):
-#     # Accedemos a la fila 0, columna 1 (Probabilidad de éxito)
-#     prob_array = clf_model.predict_proba(input_df)
-#     prob = prob_array[0, 1]  # <--- CORRECCIÓN: Fila 0, Columna 1
-    
-#     # LTV: Accedemos al primer elemento del array resultante
-#     ltv_pred = reg_model.predict(input_df)[0] # <--- CORRECCIÓN: Extraer el escalar
-    
-#     # El resto del cálculo ahora funcionará porque prob y ltv_pred son números simples
-#     expected_revenue = prob * ltv_pred
-
-#     # 6. Visualización de Resultados
-#     st.divider()
-#     c1, c2, c3 = st.columns(3)
-#     c1.metric("Closing Probability", f"{prob:.1%}")
-#     c2.metric("Potential LTV", f"${ltv_pred:,.2f}")
-#     c3.metric("Expected ROI", f"${expected_revenue:,.2f}")
-
-#     # Notificaciones de Prioridad de Negocio
-#     if expected_revenue > 5000:
-#         st.error("🔥 HIGH PRIORITY: Potential SHARK detected.")
-#     elif prob > 0.4:
-#         st.warning("⚡ MEDIUM PRIORITY: Likely conversion.")
-#     else:
-#         st.info("🐢 LOW PRIORITY: Standard lead profile.")
-
-#     # El "Golden Insight" para el reclutador
-#     if segment == 'watches' and origin == 'unknown':
-#         st.success("💡 DATA FORENSICS ALERT: Este lead pertenece al nicho de relojería con LTV histórico masivo ($113k).")
-
-
-# Senior attempt
 import streamlit as st
 import joblib
 import pandas as pd
 import numpy as np
+from streamlit_extras.metric_cards import style_metric_cards
+from streamlit_extras.add_vertical_space import add_vertical_space
 
-# 1. Configuración de la Interfaz
-st.set_page_config(page_title="Olist | Predictive Revenue Engine", layout="wide", page_icon="🚀")
+# ==========================================
+# 1. CONFIGURACIÓN Y ESTILOS (ONE-PAGER)
+# ==========================================
+st.set_page_config(
+    page_title="Olist PRM | AI Sales Intelligence",
+    layout="wide",
+    page_icon="⚡",
+    initial_sidebar_state="expanded"
+)
 
-# Estilo personalizado para las alertas de estrategia
 st.markdown("""
     <style>
-    .strategy-box {
-        padding: 20px;
-        border-radius: 10px;
-        border-left: 5px solid #ff4b4b;
-        background-color: #f0f2f6;
-    }
+        header {visibility: hidden;}
+        .block-container {
+            padding-top: 1rem !important;
+            padding-bottom: 0rem !important;
+        }
+        .section-header {
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            color: #475569 !important;
+            margin-bottom: 8px;
+            margin-top: 5px;
+        }
+        [data-testid="stMetricValue"] {
+            color: #1E3A8A !important;
+            font-size: 2rem !important;
+            font-weight: 800 !important;
+        }
+        [data-testid="stMetricLabel"] {
+            color: #334155 !important;
+            font-weight: 600 !important;
+        }
+        .strategy-container {
+            background-color: #F8FAFC;
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid #E2E8F0;
+            border-left: 6px solid;
+            margin-bottom: 10px;
+        }
+        .bench-box {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .bench-label {
+            font-size: 0.75rem;
+            color: #64748B;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .bench-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1E293B;
+        }
     </style>
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
-st.title("🚀 SDR Priority Console: Shark Detector")
-
-# 2. Carga de Assets
+# ==========================================
+# 2. CARGA DE ASSETS
+# ==========================================
 @st.cache_resource
 def load_assets():
-    # Rutas relativas recomendadas para portabilidad
     path = 'C:\\Users\\User\\Desktop\\Software y Clases\\BigData\\OList\\olist-project-sa\\Model\\'
     clf = joblib.load(f'{path}lead_scoring_rf_model.joblib')
     reg = joblib.load(f'{path}ltv_regressor_model.joblib')
     features = joblib.load(f'{path}model_features.joblib')
-    return clf, reg, features
+    
+    logistics_db = {
+        'watches': {'days': 12, 'risk': 'High', 'score': 3.8},
+        'health_beauty': {'days': 7, 'risk': 'Low', 'score': 4.5},
+        'audio_video_electronics': {'days': 10, 'risk': 'Medium', 'score': 4.1},
+        'household_utilities': {'days': 9, 'risk': 'Low', 'score': 4.3},
+        'construction_tools': {'days': 11, 'risk': 'Medium', 'score': 4.0},
+        'other': {'days': 9, 'risk': 'Standard', 'score': 4.2}
+    }
+    return clf, reg, features, logistics_db
 
 try:
-    clf_model, reg_model, model_features = load_assets()
+    clf_model, reg_model, model_features, logistics_db = load_assets()
 except Exception as e:
-    st.error(f"❌ Error al cargar modelos: {e}")
+    st.error(f"Error: {e}")
     st.stop()
 
-# 3. Sidebar: Inputs y Simulación de Upselling
+# ==========================================
+# 3. SIDEBAR (CONTROLES)
+# ==========================================
 with st.sidebar:
-    st.header("🎯 Lead Profile")
-    origin = st.selectbox("Marketing Origin", ['organic_search', 'paid_search', 'social', 'unknown', 'email', 'other'])
-    segment = st.selectbox("Business Segment", ['watches', 'health_beauty', 'audio_video_electronics', 'household_utilities', 'construction_tools', 'other'])
+    st.markdown("### ⚡ Olist PRM")
+    origin = st.selectbox("Source Channel", ['organic_search', 'paid_search', 'social', 'unknown', 'email', 'other'])
+    segment = st.selectbox("Segment", ['watches', 'health_beauty', 'audio_video_electronics', 'household_utilities', 'construction_tools', 'other'])
     lead_type = st.selectbox("Lead Type", ['online_medium', 'online_big', 'offline', 'industry', 'not_qualified'])
     
-    st.divider()
-    st.header("📈 Catalog Upselling")
-    # Simulador: ¿Qué pasa si el vendedor trae más productos?
-    catalog_size = st.slider("Declared Catalog Size (SKUs)", 1, 500, 10)
-    # Factor de escalabilidad (Lógica Senior: a más catálogo, mayor potencial de LTV)
-    upsell_multiplier = 1 + (catalog_size * 0.005) 
+    # --- CATALOG SIZE CON ETIQUETAS DINÁMICAS ---
+    catalog_size = st.slider("Catalog Size (SKUs)", 1, 1000, 50)
+    
+    if catalog_size < 50:
+        shop_type = "Boutique / Niche 💎"
+    elif catalog_size < 300:
+        shop_type = "Consolidated Store 🛍️"
+    else:
+        shop_type = "Large Scale Distributor 🏢"
+    
+    st.markdown(f"**Inventory Profile:** {shop_type}")
+    
+    # --- MULTIPLICADOR AGRESIVO ---
+    # Escala: 1 SKU = 1.0x | 1000 SKUs = ~2.5x impacto
+    upsell_multiplier = 1 + (catalog_size / 650)
 
-# 4. Construcción del motor de inferencia
+# ==========================================
+# 4. MOTOR DE INFERENCIA
+# ==========================================
 input_df = pd.DataFrame(0, index=[0], columns=model_features)
-
-# Hallazgos estratégicos
 high_value_segments = ['watches', 'health_beauty', 'audio_video_electronics']
 input_df['is_high_value_segment'] = 1 if segment in high_value_segments else 0
 
-if f'origin_{origin}' in input_df.columns:
-    input_df[f'origin_{origin}'] = 1
-if f'lead_type_{lead_type}' in input_df.columns:
-    input_df[f'lead_type_{lead_type}'] = 1
+for col in [f'origin_{origin}', f'lead_type_{lead_type}']:
+    if col in input_df.columns:
+        input_df[col] = 1
 
-# 5. Ejecución de Predicción
-# if st.button("Analyze Lead Potential"):
-#     # ML Outputs
-#     prob = clf_model.predict_proba(input_df)[0, 1]
-#     base_ltv = reg_model.predict(input_df)[0]
-    
-#     # Aplicar simulación de Upselling
-#     ltv_pred = base_ltv * upsell_multiplier
-#     expected_revenue = prob * ltv_pred
-
-#     # 6. Dashboards de KPIs
-#     st.divider()
-#     c1, c2, c3 = st.columns(3)
-#     c1.metric("Closing Probability", f"{prob:.1%}")
-#     c2.metric("Projected LTV", f"${ltv_pred:,.2f}", delta=f"{upsell_multiplier:.1%} Scaling")
-#     c3.metric("Expected ROI", f"${expected_revenue:,.2f}")
-
-#     # 7. Recomendador de Estrategia (Persona Scripting)
-#     st.subheader("🕵️ Sales Strategy Advice")
-    
-#     if expected_revenue > 10000:
-#         persona = "🦈 SHARK"
-#         advice = "Agresividad alta. Ofrecer contrato de exclusividad y destacar la infraestructura logística de Olist para alto volumen."
-#         color = "inverse"
-#     elif prob > 0.5:
-#         persona = "🦅 EAGLE"
-#         advice = "Cierre rápido. El lead está listo para convertir. Enfocarse en reducir fricción de onboarding."
-#         color = "normal"
-#     elif ltv_pred > 5000:
-#         persona = "🐺 WOLF"
-#         advice = "Valor medio-alto. Destacar herramientas de marketing interno (Olist Ads) para potenciar su visibilidad."
-#         color = "normal"
-#     else:
-#         persona = "🐱 CAT"
-#         advice = "Vendedor pequeño. Requiere educación. Enfatizar la facilidad de uso y el soporte inicial."
-#         color = "off"
-
-#     st.warning(f"**Target Persona Detected:** {persona}")
-#     st.info(f"**Tactical Advice:** {advice}")
-# ML Outputs (Cálculo instantáneo)
 prob = clf_model.predict_proba(input_df)[0, 1]
-base_ltv = reg_model.predict(input_df)[0]
-
-# Aplicar simulación de Upselling (Reacciona al Slider de la barra lateral)
-ltv_pred = base_ltv * upsell_multiplier
+ltv_pred = reg_model.predict(input_df)[0] * upsell_multiplier
 expected_revenue = prob * ltv_pred
 
-# 6. Dashboards de KPIs
-st.divider()
-st.subheader("📊 Live Prediction Analysis")
-c1, c2, c3 = st.columns(3)
-c1.metric("Closing Probability", f"{prob:.1%}")
-c2.metric("Projected LTV", f"${ltv_pred:,.2f}", delta=f"{((upsell_multiplier-1)*100):.1f}% Catalog Impact")
-c3.metric("Expected ROI", f"${expected_revenue:,.2f}")
+# ==========================================
+# 5. LAYOUT PRINCIPAL
+# ==========================================
 
-# 7. Recomendador de Estrategia (Persona Scripting)
-# Esta sección ahora cambiará dinámicamente mientras mueves el slider o cambias el segmento
-st.subheader("🕵️ Sales Strategy Advice")
+st.markdown(f"### Lead: {segment.replace('_',' ').title()} | <span style='color:#64748B; font-weight:normal;'>{origin.replace('_',' ').title()}</span>", unsafe_allow_html=True)
 
-if expected_revenue > 10000:
-    persona = "🦈 SHARK"
-    advice = "Agresividad alta. Ofrecer contrato de exclusividad y destacar la infraestructura logística de Olist para alto volumen."
-    st.error(f"**Target Persona Detected:** {persona}")
-elif prob > 0.5:
-    persona = "🦅 EAGLE"
-    advice = "Cierre rápido. El lead está listo para convertir. Enfocarse en reducir fricción de onboarding."
-    st.warning(f"**Target Persona Detected:** {persona}")
-elif ltv_pred > 5000:
-    persona = "🐺 WOLF"
-    advice = "Valor medio-alto. Destacar herramientas de marketing interno (Olist Ads) para potenciar su visibilidad."
-    st.info(f"**Target Persona Detected:** {persona}")
+# FILA 1: KPIs
+kpi_cols = st.columns(3)
+with kpi_cols[0]:
+    st.metric("Close Probability", f"{prob:.1%}")
+with kpi_cols[1]:
+    st.metric("Projected LTV", f"${ltv_pred:,.0f}")
+with kpi_cols[2]:
+    st.metric("Expected Revenue", f"${expected_revenue:,.0f}")
+
+style_metric_cards(border_left_color="#2563EB", background_color="#FFFFFF", box_shadow=True)
+
+# FILA 2: ESTRATEGIA Y BENCHMARK
+col_left, col_right = st.columns([1.5, 1])
+
+with col_left:
+    st.markdown("<p class='section-header'>Sales Strategy</p>", unsafe_allow_html=True)
+    if expected_revenue > 12000: # Umbral ajustado por el nuevo multiplicador
+        persona, advice, color, icon = "SHARK", "High-Volume partner. Deploy executive-level terms.", "#DC2626", "🦈"
+    elif prob > 0.6:
+        persona, advice, color, icon = "EAGLE", "Ready to convert. Simplify onboarding now.", "#2563EB", "🦅"
+    elif ltv_pred > 5000:
+        persona, advice, color, icon = "WOLF", "Mid-High potential. Upsell Olist Ads.", "#D97706", "🐺"
+    else:
+        persona, advice, color, icon = "CAT", "Small-scale seller. Prioritize automated onboarding.", "#16A34A", "🐱"
+
+    st.markdown(f"""
+        <div class="strategy-container" style="border-left-color: {color};">
+            <div style="font-size: 1.5rem; font-weight: 800; color: {color}; margin-bottom: 4px;">{icon} {persona}</div>
+            <div style="color: #1E293B; font-size: 0.95rem;"><b>Strategy:</b> {advice}</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+with col_right:
+    st.markdown("<p class='section-header'>Logistics of the Segment</p>", unsafe_allow_html=True)
+    bench = logistics_db.get(segment, logistics_db['other'])
+    risk_color = "#DC2626" if bench['risk'] == 'High' else ("#D97706" if bench['risk'] == 'Medium' else "#16A34A")
+    
+    b_col1, b_col2, b_col3 = st.columns(3)
+    with b_col1:
+        st.markdown(f"<div class='bench-box'><span class='bench-label'>Delivery</span><span class='bench-value'>{bench['days']}d</span></div>", unsafe_allow_html=True)
+    with b_col2:
+        st.markdown(f"<div class='bench-box'><span class='bench-label'>Risk</span><span class='bench-value' style='color:{risk_color};'>{bench['risk']}</span></div>", unsafe_allow_html=True)
+    with b_col3:
+        st.markdown(f"<div class='bench-box'><span class='bench-label'>Rating</span><span class='bench-value'>{bench['score']}</span></div>", unsafe_allow_html=True)
+
+# FILA 3: ALERTA CORREGIDA
+add_vertical_space(1)
+if bench['days'] > 10 or bench['score'] < 4.0:
+    st.error(f"🚩 **Retention Alert:** A niche prone to slow deliveries. We recommend **Olist Fulfillment** and **Olist Ads** to secure growth.")
 else:
-    persona = "🐱 CAT"
-    advice = "Vendedor pequeño. Requiere educación. Enfatizar la facilidad de uso y el soporte inicial."
-    st.success(f"**Target Persona Detected:** {persona}")
+    st.success(f"✅ **Retention Outlook:** Standard logistics performance expected for this segment.")
 
-st.write(f"👉 **Tactical Advice:** {advice}")
-
-#     # 8. Benchmark de Entrega (Contexto logístico)
-#     st.divider()
-#     st.subheader("📦 Expected Delivery Performance")
-    
-#     # Lógica de Benchmark simulada por categoría (Data Forensics)
-#     benchmarks = {
-#         'watches': {'days': 12, 'risk': 'Alto (Nicho Crítico)'},
-#         'health_beauty': {'days': 7, 'risk': 'Bajo'},
-#         'audio_video_electronics': {'days': 10, 'risk': 'Medio'}
-#     }
-    
-#     bench = benchmarks.get(segment, {'days': 9, 'risk': 'Estándar'})
-    
-#     col_log1, col_log2 = st.columns(2)
-#     col_log1.write(f"**Promedio entrega en {segment}:** {bench['days']} días")
-#     col_log2.write(f"**Riesgo Logístico:** {bench['risk']}")
-    
-#     if bench['days'] > 10:
-#         st.error("⚠️ **Logistics Alert:** Este segmento tiene tiempos de entrega sensibles. Recomendar 'Olist Entregas' para asegurar retención.")
-
-#     # Golden Insight
-#     if segment == 'watches' and origin == 'unknown':
-#         st.success("💡 **DATA FORENSICS ALERT:** Nicho de lujo detectado. Posible tráfico directo de marca consolidada.")
+st.markdown(f"<p style='color: #94A3B8; font-size: 0.7rem; text-align: right; margin-top: 20px;'>Olist PRM v1.3 | Data: April 2026</p>", unsafe_allow_html=True)
