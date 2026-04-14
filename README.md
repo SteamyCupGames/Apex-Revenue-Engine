@@ -7,6 +7,25 @@ This project transforms raw data from Olist’s e-commerce ecosystem into a pred
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://sdr-priority-console.streamlit.app/)
 
 --------------------------------------------------------------------------------
+
+## 🏗️ System Architecture
+The solution follows a Cloud-Native architecture designed for high-performance inference:
+
+```mermaid
+graph LR
+  A[(BigQuery)] -->|ETL / Parquet| B[Feature Engineering]
+  B --> C{Predictive Engine}
+  C -->|Classification| D[Lead Scoring]
+  C -->|Regression| E[LTV Estimator]
+  D & E --> F[Expected ROI Calculation]
+  F --> G[Streamlit SDR Console]
+```
+
+**Ingestion:** Data is centralized in BigQuery to ensure referential integrity.
+**Storage:** Use of the Parquet format to optimize I/O speed and reduce computing costs.
+
+--------------------------------------------------------------------------------
+
 ## 📊 Datasets Used
 The project uses real-world data from **Olist**, the largest department store on Brazilian marketplaces.
 The architecture connects two major ecosystems:
@@ -28,6 +47,7 @@ While the marketing team was unaware of the untracked traffic, forensic analysis
 **The Business Problem:** Due to the lack of UTM parameters, many of these “Sharks” were deprioritized by SDRs because their origin could not be identified, leaving millions of reais (R$) on the table.
 
 --------------------------------------------------------------------------------
+
 ## 🤖 Predictive Engine Architecture
 To address this, we developed a two-stage machine learning solution that does not rely solely on the lead’s source:
 - Classification Stage (Lead Scoring): A Random Forest model validated using stratified K-folds to handle class imbalance. It predicts the **probability that a lead will become a seller**.
@@ -36,7 +56,9 @@ To address this, we developed a two-stage machine learning solution that does no
 **Master KPI:** The console calculates the Expected ROI (Probability of Closing * Predicted LTV) in real time, allowing the sales team to call first those who will generate the most revenue, not those with the highest “probability.”
 
 --------------------------------------------------------------------------------
+
 ## 💻 The App: SDR Priority Console
+
 The **Streamlit** application serves as a tactical interface for the sales team. It allows users to simulate a “Customer Persona” profile and receive an immediate response from the model.
 How It Works:
 - **Data Input:** The user enters the business segment, lead type, and known source.
@@ -49,12 +71,33 @@ How It Works:
 **Priority Alerts:** Automatic classification of leads into Cat, Wolf, or Shark.
 
 --------------------------------------------------------------------------------
-## 🛠 Tech Stack
-**Data Warehouse:** BigQuery (Cloud-Native workflow)
-**Processing:** Pandas, NumPy, Parquet.
-**ML Engine:** Scikit-Learn (Random Forest, Stratified K-Folds).
-**Deployment:** Streamlit Share (UI) & Docker (Containerization-Ready).
-**Philosophy:** KISS - Robust, interpretable models aligned with business ROI.
+
+### 📉 Business Fidelity
+While technical metrics (MAE: $1,966.45) are solid, the real value lies in the **Decision Confidence**:
+*   The error margin represents only **~1.7%** of a typical "Shark" lead's value ($113k).
+*   The engine provides high-fidelity financial prioritization, ensuring SDRs focus on leads that move the revenue needle.
 
 --------------------------------------------------------------------------------
+
+## 🐆 Behavioral Profiling: Shark Detector
+The engine classifies sellers into performance tiers based on historical closing patterns:
+
+*   **🦈 Shark:** Aggressive, high-volume sellers (Watches/Electronics). Strategic Priority.
+*   **🦅 Eagle:** High conversion efficiency but medium volume.
+*   **🐺 Wolf:** Consistent performers across standard segments.
+*   **🐱 Cat:** Small, low-volume sellers requiring educational onboarding.
+
+![Behaviour Profile](figures/Behaviour_Profile.png)
+
+--------------------------------------------------------------------------------
+
+## 🛠 Tech Stack
+- **Data Warehouse:** BigQuery (Cloud-Native workflow)
+- **Processing:** Pandas, NumPy, Parquet.
+- **ML Engine:** Scikit-Learn (Random Forest, Stratified K-Folds).
+- **Deployment:** Streamlit Share (UI) & Docker (Containerization-Ready).
+- **Philosophy:** KISS - Robust, interpretable models aligned with business ROI.
+
+--------------------------------------------------------------------------------
+
 Author: Néstor Piedra Quesada - Machine Learning Engineer specializing in Marketing Analytics and Business Impact.
