@@ -22,6 +22,7 @@ graph LR
 ```
 
 **Ingestion:** Data is centralized in BigQuery to ensure referential integrity.
+
 **Storage:** Use of the Parquet format to optimize I/O speed and reduce computing costs.
 
 --------------------------------------------------------------------------------
