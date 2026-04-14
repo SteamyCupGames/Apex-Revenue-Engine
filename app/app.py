@@ -120,6 +120,10 @@ with st.sidebar:
     # Scale: 1 SKU = 1.0x | 1000 SKUs = ~2.5x impact
     upsell_multiplier = 1 + (catalog_size / 650)
 
+    with st.sidebar:
+        st.divider()
+        st.markdown("[📂 View Source Code on GitHub](https://github.com/SteamyCupGames/Apex-Revenue-Engine)")
+
 # ==========================================
 # 4. INFERENCE ENGINE
 # ==========================================
