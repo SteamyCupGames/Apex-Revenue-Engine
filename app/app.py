@@ -74,7 +74,7 @@ st.markdown("""
 # ==========================================
 @st.cache_resource
 def load_assets():
-    path = 'C:\\Users\\User\\Desktop\\Software y Clases\\BigData\\OList\\olist-project-sa\\Model\\'
+    path = 'Model/'
     clf = joblib.load(f'{path}lead_scoring_rf_model.joblib')
     reg = joblib.load(f'{path}ltv_regressor_model.joblib')
     features = joblib.load(f'{path}model_features.joblib')
