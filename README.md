@@ -2,6 +2,11 @@
 This project transforms raw data from Olist’s e-commerce ecosystem into a predictive revenue engine. Using advanced data forensics and machine learning techniques, the solution restores visibility into unattributed revenue and provides sales teams with a prioritization dashboard based on expected return on investment (Expected ROI).
 
 --------------------------------------------------------------------------------
+
+## 🚀 Live Demo
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](TU_URL_DE_STREAMLIT_AQUI)
+
+--------------------------------------------------------------------------------
 ## 📊 Datasets Used
 The project uses real-world data from **Olist**, the largest department store on Brazilian marketplaces.
 The architecture connects two major ecosystems:
@@ -37,10 +42,11 @@ How It Works:
 - **Data Input:** The user enters the business segment, lead type, and known source.
 - **Real-Time Inference:** The system applies data forensics logic to detect whether the lead belongs to a luxury niche (Watches/Electronics) even if the channel is unknown.
 - **Strategic Output:**
-**a. Probability of Closing:** How close is the deal to closing?
-**b. Potential LTV:** What is the long-term value of this contract?
-**c. Expected ROI:** The final decision metric.
-**d. Priority Alerts:** Automatic classification of leads into Cat, Wolf, or Shark.
+
+**Probability of Closing:** How close is the deal to closing?
+**Potential LTV:** What is the long-term value of this contract?
+**Expected ROI:** The final decision metric.
+**Priority Alerts:** Automatic classification of leads into Cat, Wolf, or Shark.
 
 --------------------------------------------------------------------------------
 ## 🛠 Tech Stack
