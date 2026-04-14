@@ -6,7 +6,7 @@ from streamlit_extras.metric_cards import style_metric_cards
 from streamlit_extras.add_vertical_space import add_vertical_space
 
 # ==========================================
-# 1. CONFIGURACIÓN Y ESTILOS (ONE-PAGER)
+# 1. CONFIGURATION AND STYLES (ONE-PAGER)
 # ==========================================
 st.set_page_config(
     page_title="Olist PRM | AI Sales Intelligence",
@@ -70,7 +70,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. CARGA DE ASSETS
+# 2. ASSET LOADING
 # ==========================================
 @st.cache_resource
 def load_assets():
@@ -96,7 +96,7 @@ except Exception as e:
     st.stop()
 
 # ==========================================
-# 3. SIDEBAR (CONTROLES)
+# 3. SIDEBAR (CONTROLS)
 # ==========================================
 with st.sidebar:
     st.markdown("### ⚡ Olist PRM")
@@ -104,7 +104,7 @@ with st.sidebar:
     segment = st.selectbox("Segment", ['watches', 'health_beauty', 'audio_video_electronics', 'household_utilities', 'construction_tools', 'other'])
     lead_type = st.selectbox("Lead Type", ['online_medium', 'online_big', 'offline', 'industry', 'not_qualified'])
     
-    # --- CATALOG SIZE CON ETIQUETAS DINÁMICAS ---
+    # --- CATALOG SIZE WITH DYNAMIC LABELS ---
     catalog_size = st.slider("Catalog Size (SKUs)", 1, 1000, 50)
     
     if catalog_size < 50:
@@ -116,12 +116,12 @@ with st.sidebar:
     
     st.markdown(f"**Inventory Profile:** {shop_type}")
     
-    # --- MULTIPLICADOR AGRESIVO ---
-    # Escala: 1 SKU = 1.0x | 1000 SKUs = ~2.5x impacto
+    # --- AGGRESSIVE MULTIPLIER ---
+    # Scale: 1 SKU = 1.0x | 1000 SKUs = ~2.5x impact
     upsell_multiplier = 1 + (catalog_size / 650)
 
 # ==========================================
-# 4. MOTOR DE INFERENCIA
+# 4. INFERENCE ENGINE
 # ==========================================
 input_df = pd.DataFrame(0, index=[0], columns=model_features)
 high_value_segments = ['watches', 'health_beauty', 'audio_video_electronics']
@@ -136,7 +136,7 @@ ltv_pred = reg_model.predict(input_df)[0] * upsell_multiplier
 expected_revenue = prob * ltv_pred
 
 # ==========================================
-# 5. LAYOUT PRINCIPAL
+# 5. MAIN LAYOUT
 # ==========================================
 
 st.markdown(f"### Lead: {segment.replace('_',' ').title()} | <span style='color:#64748B; font-weight:normal;'>{origin.replace('_',' ').title()}</span>", unsafe_allow_html=True)
