@@ -13,7 +13,7 @@ The architecture connects two major ecosystems:
 ## 🔍 Data Forensics: The Discovery of $113,000
 The core of this project stemmed from an in-depth audit of our attribution channels. Upon analyzing leads classified as “unknown” or “other,” we discovered a critical “attribution leakage.”
 
-![Image]('figures\\Data Forensics.png')
+![Preview](figures/Data_Forensics.png)
 
 While the marketing team was unaware of the untracked traffic, forensic analysis revealed that:
 - The watches segment on unknown channels has a massive average LTV (Lifetime Value) of $113,629.
