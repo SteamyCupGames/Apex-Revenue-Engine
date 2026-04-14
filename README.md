@@ -4,7 +4,7 @@ This project transforms raw data from Olist’s e-commerce ecosystem into a pred
 --------------------------------------------------------------------------------
 
 ## 🚀 Live Demo
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](TU_URL_DE_STREAMLIT_AQUI)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://sdr-priority-console.streamlit.app/)
 
 --------------------------------------------------------------------------------
 ## 📊 Datasets Used
