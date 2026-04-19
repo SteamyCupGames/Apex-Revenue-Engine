@@ -101,4 +101,75 @@ The engine classifies sellers into performance tiers based on historical closing
 
 --------------------------------------------------------------------------------
 
+## 📁 Folder Structure
+The repository is organized as follows:
+
+```text
+.
+├── Dockerfile
+├── README.md
+├── requirements.txt
+├── run_project.py
+├── app/
+│   └── app.py
+├── Data/
+│   ├── Processed/
+│   └── Raw/
+│       ├── olist_closed_deals_dataset.csv
+│       ├── olist_customers_dataset.csv
+│       ├── olist_geolocation_dataset.csv
+│       ├── olist_marketing_qualified_leads_dataset.csv
+│       ├── olist_order_items_dataset.csv
+│       ├── olist_order_payments_dataset.csv
+│       ├── olist_order_reviews_dataset.csv
+│       ├── olist_orders_dataset.csv
+│       ├── olist_products_dataset.csv
+│       ├── olist_sellers_dataset.csv
+│       └── product_category_name_translation.csv
+├── figures/
+├── Model/
+│   ├── lead_scoring_rf_model.joblib
+│   ├── ltv_regressor_model.joblib
+│   ├── model_features.joblib
+│   └── regressor_features.joblib
+├── Notebooks/
+├── src/
+│   ├── cloud_data_engineering.py
+│   ├── eda.py
+│   ├── lead_scoring.py
+│   └── ltv_predictor.py
+└── tests/
+    ├── test_bq_connection.py
+    └── test_env.py
+```
+
+## ▶️ Automatic local execution
+Once the virtual environment has been created and the dependencies installed, you can run the entire workflow automatically with `run_project.py`:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate
+pip install -r requirements.txt
+python run_project.py
+```
+
+This script runs the following in order:
+- `src.cloud_data_engineering.execute_query_task()`
+- `src.eda.eda()`
+- `src.lead_scoring.lead_scoring()`
+- `src.ltv_predictor.ltv_predictor()`
+
+## 🐳 Running with Docker
+The project is containerized in `Dockerfile`, so you can also run it inside a container:
+
+```powershell
+docker build -t olist-project .
+docker run --rm -p 8501:8501 olist-project
+```
+
+After this, the Streamlit application will be available at `http://localhost:8501`.
+
+Translated with DeepL.com (free version)
+--------------------------------------------------------------------------------
+
 Author: Néstor Piedra Quesada - Machine Learning Engineer specializing in Marketing Analytics and Business Impact.

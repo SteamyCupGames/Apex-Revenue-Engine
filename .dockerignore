@@ -1,0 +1,6 @@
+.git
+Notebooks/
+Data/
+__pycache__/
+*.json
+.env
