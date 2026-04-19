@@ -127,12 +127,20 @@ The repository is organized as follows:
 │       ├── olist_sellers_dataset.csv
 │       └── product_category_name_translation.csv
 ├── figures/
+│   ├── Behaviour_Profile.png
+│   ├── Data_Forensics.png
+│   ├── Revenue_Analysis.png
+│   └── Strategic_Attribution.png
 ├── Model/
 │   ├── lead_scoring_rf_model.joblib
 │   ├── ltv_regressor_model.joblib
 │   ├── model_features.joblib
 │   └── regressor_features.joblib
 ├── Notebooks/
+│   ├── 01_Cloud_Data_engineering.ipynb
+│   ├── 02_Strategic_Marketing_EDA.ipynb
+│   ├── 03_Lead_Scoring.ipynb
+│   └── 04_LTV_Predictor.ipynb
 ├── src/
 │   ├── cloud_data_engineering.py
 │   ├── eda.py
@@ -168,8 +176,6 @@ docker run --rm -p 8501:8501 olist-project
 ```
 
 After this, the Streamlit application will be available at `http://localhost:8501`.
-
-Translated with DeepL.com (free version)
 --------------------------------------------------------------------------------
 
 Author: Néstor Piedra Quesada - Machine Learning Engineer specializing in Marketing Analytics and Business Impact.
